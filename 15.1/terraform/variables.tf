@@ -22,6 +22,14 @@ variable "default_zone" {
 
 variable "vpc_network_name" {
   type        = string
-  default     = "netology"
+  default     = "network"
   description = "VPC network"
+}
+
+variable "metadata" {
+  type = map(any)
+  default = {
+    serial-port-enable = "1"
+    ssh-keys = "user:${local.ssh-keys}"
+  }
 }

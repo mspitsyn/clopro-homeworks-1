@@ -1,3 +1,9 @@
+## private.tf
+
+//
+// Variables.
+//
+
 variable "private_subnet" {
   type        = string
   default     = "private"
@@ -43,15 +49,40 @@ variable "boot_disk_private" {
   }]
 }
 
+//
+// Create a new VPC Subnet.
+//
+resource "yandex_vpc_subnet" "private" {
+  v4_cidr_blocks = var.private_cidr
+  zone           = var.default_zone
+  network_id     = yandex_vpc_network.net.id
+  route_table_id = yandex_vpc_route_table.private-route.id
+}
+
+//
+// Create a new VPC Route Table.
+//
+resource "yandex_vpc_route_table" "private-route" {
+  network_id = yandex_vpc_network.network.id
+
+  static_route {
+    destination_prefix = "0.0.0.0/0"
+    next_hop_address   = var.yandex_compute_instance_nat.ip_address
+  }
+}
+
+//
+// Create a new Compute Instance
+//
 resource "yandex_compute_instance" "private" {
-  name        = var.yandex_compute_instance_private[0].vm_name
-  platform_id = var.yandex_compute_instance_private[0].platform_id
-  hostname = var.yandex_compute_instance_private[0].hostname
+  name        = var.yandex_compute_instance_private.vm_name
+  platform_id = var.yandex_compute_instance_private.platform_id
+  hostname = var.yandex_compute_instance_private.hostname
 
   resources {
-    cores         = var.yandex_compute_instance_private[0].cores
-    memory        = var.yandex_compute_instance_private[0].memory
-    core_fraction = var.yandex_compute_instance_private[0].core_fraction
+    cores         = var.yandex_compute_instance_private.cores
+    memory        = var.yandex_compute_instance_private.memory
+    core_fraction = var.yandex_compute_instance_private.core_fraction
   }
 
   boot_disk {
@@ -62,10 +93,7 @@ resource "yandex_compute_instance" "private" {
     }
   }
 
-  metadata = {
-    ssh-keys = "ubuntu:${local.ssh-keys}"
-    serial-port-enable = "1"
-  }
+  metadata = var.metadata
 
   network_interface {
     subnet_id  = yandex_vpc_subnet.private.id
@@ -75,3 +103,6 @@ resource "yandex_compute_instance" "private" {
     preemptible = true
   }
 }
+
+
+
