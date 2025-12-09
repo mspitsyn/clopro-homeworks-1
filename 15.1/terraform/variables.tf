@@ -26,10 +26,10 @@ variable "vpc_network_name" {
   description = "VPC network"
 }
 
-variable "metadata" {
-  type = map(any)
-  default = {
-    serial-port-enable = "1"
-    ssh-keys = "user:${local.ssh-keys}"
-  }
-}
+# variable "metadata" {
+#   type = map(any)
+#   default = {
+#     serial-port-enable = 1
+#     # ssh-keys = file("~/.ssh/id_rsa.pub")
+#     }
+#   }

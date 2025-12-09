@@ -55,7 +55,7 @@ variable "boot_disk_private" {
 resource "yandex_vpc_subnet" "private" {
   v4_cidr_blocks = var.private_cidr
   zone           = var.default_zone
-  network_id     = yandex_vpc_network.net.id
+  network_id     = yandex_vpc_network.network.id
   route_table_id = yandex_vpc_route_table.private-route.id
 }
 
@@ -67,7 +67,7 @@ resource "yandex_vpc_route_table" "private-route" {
 
   static_route {
     destination_prefix = "0.0.0.0/0"
-    next_hop_address   = var.yandex_compute_instance_nat.ip_address
+    next_hop_address   = var.yandex_compute_instance_nat[0].ip_address
   }
 }
 
@@ -75,25 +75,28 @@ resource "yandex_vpc_route_table" "private-route" {
 // Create a new Compute Instance
 //
 resource "yandex_compute_instance" "private" {
-  name        = var.yandex_compute_instance_private.vm_name
-  platform_id = var.yandex_compute_instance_private.platform_id
-  hostname = var.yandex_compute_instance_private.hostname
+  name        = var.yandex_compute_instance_private[0].vm_name
+  platform_id = var.yandex_compute_instance_private[0].platform_id
+  hostname = var.yandex_compute_instance_private[0].hostname
 
   resources {
-    cores         = var.yandex_compute_instance_private.cores
-    memory        = var.yandex_compute_instance_private.memory
-    core_fraction = var.yandex_compute_instance_private.core_fraction
+    cores         = var.yandex_compute_instance_private[0].cores
+    memory        = var.yandex_compute_instance_private[0].memory
+    core_fraction = var.yandex_compute_instance_private[0].core_fraction
   }
 
   boot_disk {
     initialize_params {
-      image_id = var.boot_disk_private.image_id
-      type     = var.boot_disk_private.type
-      size     = var.boot_disk_private.size
+      image_id = var.boot_disk_private[0].image_id
+      type     = var.boot_disk_private[0].type
+      size     = var.boot_disk_private[0].size
     }
   }
 
-  metadata = var.metadata
+  metadata = {
+    ssh-keys = "user:${local.ssh-keys}"
+    serial-port-enable = "1"
+  }
 
   network_interface {
     subnet_id  = yandex_vpc_subnet.private.id

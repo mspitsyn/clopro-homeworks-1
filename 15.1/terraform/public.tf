@@ -97,30 +97,33 @@ resource "yandex_vpc_subnet" "public" {
 // Create a new NAT-instance
 //
 resource "yandex_compute_instance" "nat" {
-  name        = var.yandex_compute_instance_nat.vm_name
-  platform_id = var.yandex_compute_instance_nat.platform_id
-  hostname = var.yandex_compute_instance_nat.hostname
+  name        = var.yandex_compute_instance_nat[0].vm_name
+  platform_id = var.yandex_compute_instance_nat[0].platform_id
+  hostname = var.yandex_compute_instance_nat[0].hostname
 
   resources {
-    cores         = var.yandex_compute_instance_nat.cores
-    memory        = var.yandex_compute_instance_nat.memory
-    core_fraction = var.yandex_compute_instance_nat.core_fraction
+    cores         = var.yandex_compute_instance_nat[0].cores
+    memory        = var.yandex_compute_instance_nat[0].memory
+    core_fraction = var.yandex_compute_instance_nat[0].core_fraction
   }
 
   boot_disk {
     initialize_params {
-      image_id = var.boot_disk_nat.image_id
-      type     = var.boot_disk_nat.type
-      size     = var.boot_disk_nat.size
+      image_id = var.boot_disk_nat[0].image_id
+      type     = var.boot_disk_nat[0].type
+      size     = var.boot_disk_nat[0].size
     }
   }
 
-  metadata = var.metadata
+  metadata = {
+    ssh-keys = "user:${local.ssh-keys}"
+    serial-port-enable = "1"
+  }
 
   network_interface {
     subnet_id  = yandex_vpc_subnet.public.id
     nat        = true
-    ip_address = var.yandex_compute_instance_nat.ip_address
+    ip_address = var.yandex_compute_instance_nat[0].ip_address
   }
   scheduling_policy {
     preemptible = true
@@ -131,25 +134,28 @@ resource "yandex_compute_instance" "nat" {
 // Create a new Compute Instance
 // 
 resource "yandex_compute_instance" "public" {
-  name        = var.yandex_compute_instance_public.vm_name
-  platform_id = var.yandex_compute_instance_public.platform_id
-  hostname = var.yandex_compute_instance_public.hostname
+  name        = var.yandex_compute_instance_public[0].vm_name
+  platform_id = var.yandex_compute_instance_public[0].platform_id
+  hostname = var.yandex_compute_instance_public[0].hostname
 
   resources {
-    cores         = var.yandex_compute_instance_public.cores
-    memory        = var.yandex_compute_instance_public.memory
-    core_fraction = var.yandex_compute_instance_public.core_fraction
+    cores         = var.yandex_compute_instance_public[0].cores
+    memory        = var.yandex_compute_instance_public[0].memory
+    core_fraction = var.yandex_compute_instance_public[0].core_fraction
   }
 
   boot_disk {
     initialize_params {
-      image_id = var.boot_disk_public.image_id
-      type     = var.boot_disk_public.type
-      size     = var.boot_disk_public.size
+      image_id = var.boot_disk_public[0].image_id
+      type     = var.boot_disk_public[0].type
+      size     = var.boot_disk_public[0].size
     }
   }
 
-  metadata = var.metadata
+  metadata = {
+    ssh-keys = "user:${local.ssh-keys}"
+    serial-port-enable = "1"
+  }
 
   network_interface {
     subnet_id  = yandex_vpc_subnet.public.id
