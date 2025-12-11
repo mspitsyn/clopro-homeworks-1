@@ -93,8 +93,9 @@ resource "yandex_compute_instance_group" "group-vms" {
     serial-port-enable = "1"
     user-data  = <<EOF
 #!/bin/bash
-cd /var/www/html
-echo '<html><head><title>Downloading my picture</title></head> <body><h1>Downloading my picture</h1><img src="${var.image_path}></body></html>' > index.html
+export PUBLIC_IPV4=$(curl ifconfig.me)  
+echo instance: $(hostname), IP Address: $PUBLIC_IPV4 > /var/www/html/index.html  
+echo https://mspitsyn-2025.website.yandexcloud.net >> /var/www/html/index.html  
 EOF
     }
   }
